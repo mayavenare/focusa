@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Focus Friends</title>
+    <style>
+        body { 
+            font-family: "Comic Sans MS", cursive, sans-serif; 
+            background: #f3e8ff;
+            color: #4a148c;
+            text-align: center; 
+        }
+        h1 { color: #7b1fa2; font-size: 2.5em; }
+        .task { 
+            margin: 10px; padding: 15px; 
+            background: #e1bee7;
+            border-radius: 15px; 
+            box-shadow: 0px 4px 6px rgba(0,0,0,0.1); 
+            font-size: 1.2em;
+        }
+        button { 
+            background: #ba68c8; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 12px; 
+            color: white; cursor: pointer; 
+            transition: 0.2s ease;
+            margin: 3px;
+        }
+        button:hover { background: #9c27b0; }
+        input { 
+            padding: 8px; border-radius: 8px; 
+            border: 2px solid #ba68c8;
+            margin-right: 10px;
+        }
+        #timer-display { font-size: 2em; color: #7b1fa2; font-weight: bold; margin-top: 10px;}
+        #focus-check button { margin: 5px; }
+        #clear-all { margin-top: 20px; }
+
+        /* Logout button styling */
+        #logout-btn {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            background: #f06292;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+        }
+        #logout-btn:hover { background: #d81b60; }
+    </style>
+</head>
+<!-- Logout Button -->
+<form action="/logout" method="GET" style="position:absolute; top:10px; left:20px;">
+    <button type="submit" id="logout-btn">Logout ❌</button>
+</form>
+<!-- Friends Page Button -->
+<a href="/friends" style="position:absolute; top:10px; left:120px;">
+    <button>🌸 Friends</button>
+</a>
+
+<body>
+<!-- User ID display -->
+<div style="position: absolute; top: 10px; right: 20px; background:#e1bee7; padding:5px 10px; border-radius:10px;">
+    Your ID: <strong>{{ user_id }}</strong>
+</div>
+
+<h1>🌸 Focus Friends 🌸</h1>
+
+<!-- Add Task Form -->
+<form action="/add_task" method="POST">
+    <input type="text" name="description" placeholder="Add a cute task..." required>
+    <button type="submit">➕ Add</button>
+</form>
+
+<!-- Tasks List -->
+<h2>✨ Your Tasks ✨</h2>
+{% for task in tasks %}
+    <div class="task">
+        <p>{{ task[2] }} {% if task[3] %} ✅ {% endif %}</p>
+        <a href="/toggle_task/{{ task[0] }}"><button>Toggle</button></a>
+        <a href="/delete_task/{{ task[0] }}"><button>Delete</button></a>
+    </div>
+{% endfor %}
+
+<form action="/clear_tasks" method="GET" id="clear-all">
+    <button type="submit">🧹 Clear All Tasks</button>
+</form>
+
+<!-- Flexible Timer Section -->
+<h2>⏰ Focus Timer ⏰</h2>
+<div id="timer-container">
+    <input type="number" id="timer-minutes" placeholder="Minutes (1–180)" min="1" max="180">
+    <button id="start-timer">Start Focus Session</button>
+    <p id="timer-display">00:00</p>
+</div>
+
+<div id="focus-check" style="display:none; margin-top:20px;">
+    <h3>Did you focus? 🌸</h3>
+    <button id="focused-yes">Yes ✅</button>
+    <button id="focused-no">No ❌</button>
+    <input type="text" id="reason" placeholder="Reason if no" style="margin-top:10px;">
+</div>
+
+<!-- Friend Timers -->
+<h2>🌸 Friend Timers 🌸</h2>
+{% for ft in friend_timers %}
+    <div class="task">
+        {{ ft[1] }} is focusing for {{ ft[3] }} minutes ⏰
+    </div>
+{% endfor %}
+
+<!-- Add Friend by ID (bubble at bottom-left) -->
+<div style="position: fixed; bottom: 20px; left: 20px; background:#f3e8ff; padding:10px; border-radius:15px; box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+    <form action="/add_friend_by_code" method="POST">
+        <input type="number" name="friend_id" placeholder="Friend's ID" required>
+        <button type="submit">➕ Add Friend</button>
+    </form>
+</div>
+
+<script>
+    let timer;
+    let timeLeft;
+    const timerDisplay = document.getElementById('timer-display');
+    const startBtn = document.getElementById('start-timer');
+    const focusCheck = document.getElementById('focus-check');
+    const timerInput = document.getElementById('timer-minutes');
+
+    // Get session_id from Flask
+    const session_id = {{ session_id | default(0) }};
+
+    function formatTime(seconds) {
+        const m = Math.floor(seconds/60).toString().padStart(2,'0');
+        const s = (seconds%60).toString().padStart(2,'0');
+        return `${m}:${s}`;
+    }
+
+    function startTimer() {
+        let minutes = parseInt(timerInput.value);
+        if(isNaN(minutes) || minutes < 1 || minutes > 180){
+            alert('Please enter a value between 1 and 180 minutes 🌸');
+            return;
+        }
+        timeLeft = minutes * 60;
+        timerDisplay.textContent = formatTime(timeLeft);
+        startBtn.disabled = true;
+
+        timer = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = formatTime(timeLeft);
+
+            if(timeLeft <= 0){
+                clearInterval(timer);
+                focusCheck.style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    startBtn.addEventListener('click', startTimer);
+
+    function endSession(focused) {
+        let minutes = parseInt(timerInput.value) || 0;
+        let reason = document.getElementById('reason').value || '';
+        
+        fetch(`/end_timer/${session_id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `focused=${focused}&minutes=${minutes}&reason=${encodeURIComponent(reason)}`
+        });
+
+        alert(`Focus session recorded! ${focused === 'no' ? 'Reason: ' + reason : ''}`);
+        focusCheck.style.display = 'none';
+        startBtn.disabled = false;
+        timerDisplay.textContent = '00:00';
+        timerInput.value = '';
+        document.getElementById('reason').value = '';
+    }
+
+    document.getElementById('focused-yes').addEventListener('click', () => endSession('yes'));
+    document.getElementById('focused-no').addEventListener('click', () => endSession('no'));
+</script>
+</body>
+</html>

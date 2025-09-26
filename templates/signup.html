@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up - Focus Friends</title>
+    <style>
+        body { font-family: "Comic Sans MS"; background: #f3e8ff; color: #4a148c; text-align:center; }
+        input { padding: 8px; border-radius: 8px; border:2px solid #ba68c8; margin:5px; }
+        button { background:#ba68c8; color:white; padding:8px 15px; border:none; border-radius:12px; }
+        button:hover { background:#9c27b0; }
+        a { color:#7b1fa2; text-decoration:none; margin-left:10px;}
+    </style>
+</head>
+<body>
+    <h1>🌸 Focus Friends Sign Up 🌸</h1>
+    <form method="POST" action="/signup">
+        <input type="text" name="username" placeholder="Username" required><br>
+        <input type="password" name="password" placeholder="Password" required><br>
+        <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login</a></p>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Friend's Tasks</title>
+</head>
+<body>
+    <h1>🌸 Tasks of Friend 🌸</h1>
+    {% for task in tasks %}
+        <p>{{ task[2] }} {% if task[3] %} ✅ {% endif %}</p>
+    {% else %}
+        <p>No tasks yet! 😅</p>
+    {% endfor %}
+    <a href="/friends"><button>Back to Friends</button></a>
+</body>
+</html>
+
+

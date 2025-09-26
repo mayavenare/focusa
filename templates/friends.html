@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>🌸 Friends 🌸</title>
+<style>
+body { 
+    font-family: "Comic Sans MS", cursive, sans-serif; 
+    background:#f3e8ff; 
+    color:#4a148c; 
+    text-align:center; 
+    margin:0; padding:0;
+}
+h1 { color:#7b1fa2; font-size:2.5em; margin-top:20px; }
+.card { 
+    background:#e1bee7; 
+    border-radius:15px; 
+    margin:10px; 
+    padding:15px; 
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+button { 
+    background:#ba68c8; 
+    border:none; 
+    padding:8px 15px; 
+    border-radius:12px; 
+    color:white; 
+    cursor:pointer; 
+}
+button:hover { background:#9c27b0; }
+#add-friend { 
+    position:fixed; 
+    left:20px; top:100px; 
+    background:#e1bee7; 
+    padding:10px; 
+    border-radius:15px; 
+    box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+#incoming { 
+    position:fixed; 
+    bottom:20px; left:20px; 
+    z-index:1000;
+}
+#user-id-display {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    background:#e1bee7; 
+    padding:5px 10px; 
+    border-radius:10px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+
+<!-- User ID Top-Right -->
+<div id="user-id-display">
+Your ID: <strong>{{ user_id }}</strong>
+</div>
+
+<h1>🌸 Friends Page 🌸</h1>
+
+<!-- Add Friend by Code -->
+<div id="add-friend">
+<form action="/send_request" method="POST">
+<input type="number" name="friend_id" placeholder="Enter friend code" required>
+<button type="submit">➕ Add Friend</button>
+</form>
+</div>
+
+<!-- Friends List -->
+<h2>💖 Your Friends</h2>
+{% for f in friends %}
+<div class="card">
+<p>{{ f[1] }}</p>
+<a href="/friend_tasks/{{ f[0] }}"><button>See Tasks</button></a>
+</div>
+{% endfor %}
+
+<!-- Incoming Friend Requests -->
+<div id="incoming">
+{% for req in incoming_requests %}
+<div class="card">
+<p>{{ req[1] }} wants to be your friend 🌸</p>
+<a href="/respond_request/{{ req[0] }}/accept"><button>Accept ✅</button></a>
+<a href="/respond_request/{{ req[0] }}/reject"><button>Reject ❌</button></a>
+</div>
+{% endfor %}
+</div>
+
+</body>
+</html>

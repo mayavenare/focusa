@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>🌸 Leaderboard 🌸</title>
+<style>
+body { font-family:"Comic Sans MS", cursive, sans-serif; background:#f3e8ff; color:#4a148c; text-align:center; }
+table { margin:auto; border-collapse:collapse; width:50%; }
+th, td { border:2px solid #ba68c8; padding:10px; }
+th { background:#7b1fa2; color:white; }
+</style>
+</head>
+<body>
+<h1>🌸 Leaderboard 🌸</h1>
+<table>
+<tr><th>Username</th><th>Level</th><th>XP</th></tr>
+{% for user in top_users %}
+<tr>
+<td>{{ user[0] }}</td>
+<td>{{ user[1] }}</td>
+<td>{{ user[2] }}</td>
+</tr>
+{% endfor %}
+</table>
+<a href="/"><button>Back Home</button></a>
+</body>
+</html>
